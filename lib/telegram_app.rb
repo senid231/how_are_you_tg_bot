@@ -1,0 +1,7 @@
+require_relative './telegram_app/application'
+require_relative './telegram_app/configuration'
+require_relative './telegram_app/listener'
+require_relative './telegram_app/message_handler'
+require_relative './telegram_app/command'
+require_relative './telegram_app/entity'
+require_relative './telegram_app/repository'

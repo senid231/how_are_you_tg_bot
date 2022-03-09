@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+
+echo 'Setting up...'
+gem install bundler
+bundle install
+cp -v config/config.example.yml config/config.yml
+echo 'Done.'
