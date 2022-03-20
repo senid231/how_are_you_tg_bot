@@ -12,14 +12,14 @@ class ProvideInfo
       user = @repo.update_user(user.id, wait_location: 0, location: text, location_added_at: Time.now)
       ShowRequestInfo.new.call(user: user) if user.help_request_expired?
       Application.logger&.info { "user @#{user.username} changes location to: #{text}" }
-      return Result.new(success: true, message: 'Місцезнаходження оновлено')
+      return Result.new(success: true, message: 'Збережено: місцезнаходження оновлено')
     end
 
     if user.wait_help_request
       user = @repo.update_user(user.id, wait_help_request: 0, help_request: text, help_request_added_at: Time.now)
       ShowRequestInfo.new.call(user: user) if user.location_expired?
       Application.logger&.info { "user @#{user.username} requires help with: #{text}" }
-      return Result.new(success: true, message: "Запит на допомогу збережено")
+      return Result.new(success: true, message: "Збережено: запит на допомогу оновлений")
     end
 
     Result.new(success: false, error: 'nothing asked')

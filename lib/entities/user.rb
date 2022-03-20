@@ -14,7 +14,7 @@ class User < TelegramApp::Entity
   attribute :help_request_added_at, type: :time
   attribute :created_at, type: :time
 
-  EXPIRE_SECONDS = 60 #* 60 * 24 # 24 hours
+  EXPIRE_SECONDS = 60 * 60 * 24 # 24 hours
 
   def location_expired?
     location_added_at.nil? || location_added_at.to_i < info_expired_at
