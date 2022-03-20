@@ -8,9 +8,11 @@ class GenerateStat
   end
 
   def call(group:)
-    return Result.new(success: true, text: 'Users (0)') if group.nil?
-
-    text = generate_stat(group)
+    if group.nil?
+      text = format_stat([], [])
+    else
+      text = generate_stat(group)
+    end
     Result.new(success: true, text: text)
   end
 
@@ -18,9 +20,38 @@ class GenerateStat
 
   def generate_stat(group)
     users = @repo.collect_users_by_group(group.id)
-    users_info = users.map do |user|
-      "@#{user.username} - last location #{user.location.inspect} at #{user.location_added_at}"
+    location_list = []
+    help_list = []
+    users.each do |user|
+      user_info = "#{user.first_name} #{user.last_name} @#{user.username}"
+      if user.location_added_at
+        location_info = "знаходиться у #{user.location.inspect} (#{emoji_for(user, :location)}#{user.location_added_at.strftime('%F')})"
+      else
+        location_info = "немає інформації"
+      end
+      location_list.push("#{user_info} - #{location_info}")
+      unless user.help_request.nil?
+        help_list.push("#{user_info} потребує допомоги: #{user.help_request} (#{emoji_for(user, :help_request)}#{user.help_request_added_at.strftime('%F')})")
+      end
     end
-    "Users (#{users.size}):\n#{users_info.join("\n")}"
+    format_stat(location_list, help_list)
+  end
+
+  def format_stat(location_list, help_list)
+    [
+      "Користувачів - #{location_list.size}",
+      location_list.join("\n"),
+      help_list.join("\n")
+    ].join("\n\n")
+  end
+
+  def emoji_for(user, type)
+    if type == :location
+      user.location_expired? ? '⚠ ' : ''
+    elsif type == :help_request
+      user.help_request_expired? ? '⚠ ' : ''
+    else
+      raise ArgumentError, "invalid type #{type.inspect}"
+    end
   end
 end

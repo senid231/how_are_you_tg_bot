@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class RequestLocation
+class RequestHelp
   Result = Struct.new(:success, :error, keyword_init: true)
 
   def initialize
@@ -10,14 +10,14 @@ class RequestLocation
   def call(user:)
     result = SendMessage.new.call(
       chat_id: user.external_id,
-      text: 'Вкажіть ваше місцезнаходження',
+      text: 'Яка вам потрібна допомога?',
       reply_markup: reply_markup
     )
     unless result.success
       return Result.new(success: false, error: "failed to send message to @#{user.username}, #{result.error}")
     end
 
-    @repo.update_user(user.id, wait_location: true)
+    @repo.update_user(user.id, wait_help_request: true)
     Result.new(success: true)
   end
 
@@ -26,7 +26,7 @@ class RequestLocation
   def reply_markup
     Telegram::Bot::Types::ForceReply.new(
       force_reply: true,
-      input_field_placeholder: 'наприклад: Україна, Київ'
+      input_field_placeholder: 'наприклад: мені потрібні гроші'
     )
   end
 end

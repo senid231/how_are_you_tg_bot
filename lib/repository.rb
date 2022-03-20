@@ -1,37 +1,6 @@
 # frozen_string_literal: true
 
 class Repository < TelegramApp::Repository
-  self.database_name = "sqlite://#{Application.config.database}"
-
-  schema do
-    create_table? :users do
-      primary_key :id
-      column :external_id, :string, null: false
-      column :username, :string, null: false
-      column :location, :string
-      column :wait_location, :boolean, default: false
-      column :location_added_at, :timestamp
-      column :created_at, :timestamp, null: false
-      index :external_id, unique: true
-    end
-
-    create_table? :groups do
-      primary_key :id
-      column :external_id, :string, null: false
-      column :title, :string, null: false
-      column :created_at, :timestamp, null: false
-      index :external_id, unique: true
-    end
-
-    create_table? :users_groups do
-      primary_key :id
-      foreign_key :user_id, :users, null: false
-      foreign_key :group_id, :groups, null: false
-      column :created_at, :timestamp, null: false
-      # index [:user_id, :group_id], unique: true
-    end
-  end
-
   # @param external_id [String]
   # @return [User,nil]
   def find_user_by_external_id(external_id)
@@ -95,6 +64,11 @@ class Repository < TelegramApp::Repository
   # @return [Array<User>]
   def collect_users
     connection[:users].all.map { |attrs| User.new(attrs) }
+  end
+
+  # @return [Array<Group>]
+  def collect_groups
+    connection[:groups].all.map { |attrs| Group.new(attrs) }
   end
 
   # @param user_id [Integer]

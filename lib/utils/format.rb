@@ -20,5 +20,20 @@ module Utils
       end
       lines.join("\n")
     end
+
+    def pretty_hash_message(message, replace_keys = {})
+      result = {}
+      attribute_names = message.class.attribute_set.to_a.map(&:name)
+      attribute_names.each do |attribute_name|
+        attribute_name = attribute_name.to_sym
+        value = message.public_send(attribute_name)
+        if value.is_a?(Telegram::Bot::Types::Base) || value.is_a?(Telegram::Bot::Types::Chat)
+          value = pretty_hash_message(value)
+        end
+        key = replace_keys.fetch(attribute_name, attribute_name)
+        result[key] = value
+      end
+      result
+    end
   end
 end

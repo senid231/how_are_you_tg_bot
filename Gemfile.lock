@@ -7,9 +7,12 @@ GEM
       thread_safe (~> 0.3, >= 0.3.1)
     coercible (1.0.0)
       descendants_tracker (~> 0.0.1)
+    concurrent-ruby (1.1.9)
     descendants_tracker (0.0.4)
       thread_safe (~> 0.3, >= 0.3.1)
     dry-inflector (0.2.1)
+    et-orbi (1.2.7)
+      tzinfo
     faraday (1.10.0)
       faraday-em_http (~> 1.0)
       faraday-em_synchrony (~> 1.0)
@@ -33,9 +36,21 @@ GEM
     faraday-patron (1.0.0)
     faraday-rack (1.0.0)
     faraday-retry (1.0.3)
+    fugit (1.5.2)
+      et-orbi (~> 1.1, >= 1.1.8)
+      raabro (~> 1.4)
     ice_nine (0.11.2)
     multipart-post (2.1.1)
+    raabro (1.4.0)
+    rake (13.0.1)
     ruby2_keywords (0.0.5)
+    rufus-scheduler (3.8.1)
+      fugit (~> 1.1, >= 1.1.6)
+    sentry-ruby (5.2.1)
+      concurrent-ruby (~> 1.0, >= 1.0.2)
+      sentry-ruby-core (= 5.2.1)
+    sentry-ruby-core (5.2.1)
+      concurrent-ruby
     sequel (5.54.0)
     sqlite3 (1.4.2)
     telegram-bot-ruby (0.17.0)
@@ -43,6 +58,8 @@ GEM
       faraday (~> 1.0)
       virtus (~> 2.0)
     thread_safe (0.3.6)
+    tzinfo (2.0.4)
+      concurrent-ruby (~> 1.0)
     virtus (2.0.0)
       axiom-types (~> 0.1)
       coercible (~> 1.0)
@@ -52,6 +69,9 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
+  rake
+  rufus-scheduler
+  sentry-ruby
   sequel
   sqlite3
   telegram-bot-ruby

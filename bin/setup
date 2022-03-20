@@ -4,4 +4,5 @@ echo 'Setting up...'
 gem install bundler
 bundle install
 cp -v config/config.example.yml config/config.yml
+bundle exec rake db:setup
 echo 'Done.'

@@ -12,12 +12,13 @@ or
 ```
 bundle install
 cp config/config.example.yml config/config.yml
+bundle exec rake db:setup
 ```
 
 ## Run
 
 ```shell
-APP_TOKEN="mytoken" TEAM_NAME="My team" ./bin/bot
+APP_TOKEN="mytoken" TZ="Europe/Kiev" ./bin/bot
 ```
 
 It will create sqlite3 db file in `db/how_are_you_bot.db`

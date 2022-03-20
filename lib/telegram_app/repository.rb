@@ -10,25 +10,14 @@ module TelegramApp
     Error = Class.new(StandardError)
 
     class << self
-      attr_accessor :database_name
-      attr_reader :_schema
-
-      def schema(&block)
-        @_schema = block
-      end
+      attr_accessor :database_url
 
       def connection
         @connection ||= build_connection
       end
 
       def build_connection
-        Sequel.connect(database_name)
-      end
-
-      def check_schema
-        return if _schema.nil?
-
-        connection.instance_exec(&_schema)
+        Sequel.connect(database_url)
       end
     end
 
