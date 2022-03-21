@@ -138,7 +138,6 @@ module TelegramApp
       end
 
       def chat_event(event_name, types: nil, action: nil, &block)
-        types = type.nil? || type.is_a?(Array) ? type : [type]
         matcher = ChatEventMatcher.new(event_name, types: types)
         route(matcher, action: action, &block)
       end
