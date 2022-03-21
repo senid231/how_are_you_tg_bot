@@ -4,7 +4,7 @@ class StartAction < ApplicationAction
   before_action :private_greeting
 
   def call
-    if chat.type != 'group'
+    unless ['group', 'supergroup'].include?(chat.type)
       halt_message(chat_id: chat.id, text: 'TODO: usage')
     end
 
