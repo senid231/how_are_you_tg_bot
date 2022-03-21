@@ -15,7 +15,7 @@ class ApplicationAction < TelegramApp::Action
   def group
     return @group if defined?(@group)
 
-    @group = chat.type == 'group' ? repo.find_group_by_external_id(chat.id) : nil
+    @group = ['group', 'supergroup'].include?(chat.type) ? repo.find_group_by_external_id(chat.id) : nil
   end
 
   def repo

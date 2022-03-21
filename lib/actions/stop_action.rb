@@ -2,7 +2,7 @@
 
 class StopAction < ApplicationAction
   def call
-    if chat.type == 'group'
+    if ['group', 'supergroup'].include?(chat.type)
       remove_me_from_group
     else
       remove_from_all_groups

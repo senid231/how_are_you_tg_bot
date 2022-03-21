@@ -28,7 +28,7 @@ module TelegramApp
         return false unless message.is_a?(Telegram::Bot::Types::Message)
         return false if !@types.nil? && @types.include?(message.chat.type)
 
-        if message.chat.type == 'group' && message.text.split(' ').first == "/#{@command}@#{bot_info.username}"
+        if ['group', 'supergroup'].include?(message.chat.type) && message.text.split(' ').first == "/#{@command}@#{bot_info.username}"
           return true
         end
 

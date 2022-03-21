@@ -37,7 +37,7 @@ module TelegramApp
       new = message.new_chat_member
       return false if old.user.id != bot_info.id || new.user.id != bot_info.id
 
-      message.chat.type == 'group' && old.status == 'member' && new.status == 'left'
+      ['group', 'supergroup'].include?(message.chat.type) && old.status == 'member' && new.status == 'left'
     end
 
     def call(message:, event_name:, bot_info:)
