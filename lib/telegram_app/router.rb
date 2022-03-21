@@ -18,15 +18,15 @@ module TelegramApp
     class CommandMatcher < Matcher
 
       # @param command [Symbol,String]
-      # @param type [String,Symbol,nil] chat type, any if nil passed, default nil.
-      def initialize(command, type:)
+      # @param types [Array<String>,nil] chat types, any if nil passed.
+      def initialize(command, types:)
         @command = command
-        @type = type
+        @types = types
       end
 
       def match?(message, bot_info)
         return false unless message.is_a?(Telegram::Bot::Types::Message)
-        return false if !@type.nil? && message.chat.type != @type.to_s
+        return false if !@types.nil? && @types.include?(message.chat.type)
 
         if message.chat.type == 'group' && message.text.split(' ').first == "/#{@command}@#{bot_info.username}"
           return true
@@ -40,15 +40,15 @@ module TelegramApp
     # Matches by regexp or exact text.
     class MessageMatcher < Matcher
       # @param text [String,Regexp]
-      # @param type [String,Symbol,nil] chat type, any if nil passed, default nil.
-      def initialize(text, type:)
+      # @param types [Array<String>,nil] chat types, any if nil passed.
+      def initialize(text, types:)
         @text = text
-        @type = type
+        @types = types
       end
 
       def match?(message, bot_info)
         return false unless message.is_a?(Telegram::Bot::Types::Message)
-        return false if !@type.nil? && message.chat.type != @type.to_s
+        return false if !@types.nil? && @types.include?(message.chat.type)
 
         if @text.is_a?(Regexp)
           @text.match?(message.text)
@@ -59,27 +59,30 @@ module TelegramApp
     end
 
     class ChatEventMatcher < Matcher
-      def initialize(event_name, type: nil)
+      # @param types [Array<String>,nil] chat types, any if nil passed.
+      def initialize(event_name, types: nil)
         @event_name = event_name
-        @type = type
+        @types = types
       end
 
       def match?(message, bot_info)
         return false unless message.is_a?(Telegram::Bot::Types::ChatMemberUpdated)
+        return false if !@types.nil? && @types.include?(message.chat.type)
 
         ChatEventDetector.call(message: message, event_name: @event_name, bot_info: bot_info)
       end
     end
 
     class CallbackQueryMatcher < Matcher
-      def initialize(data, type: nil)
+      # @param types [Array<String>,nil] chat types, any if nil passed.
+      def initialize(data, types: nil)
         @data = data
-        @type = type
+        @types = types
       end
 
       def match?(message, bot_info)
         return false unless message.is_a?(Telegram::Bot::Types::CallbackQuery)
-        return false if !@type.nil? && message.message.chat.type != @type.to_s
+        return false if !@types.nil? && @types.include?(message.message.chat.type)
 
         if @data.is_a?(Regexp)
           @data.match?(message.data)
@@ -109,33 +112,34 @@ module TelegramApp
 
       # Routes command to action or proc.
       # @param command_name [Symbol,String]
-      # @param type [String,Symbol,nil] chat type, any if nil passed, default nil.
+      # @param types [Array<String>,nil] chat type, any if nil passed, default nil.
       # @example
       #   command :start, action: StartAction
       #   command :startgroup, type: :group do |message|
       #     StartGroupAction.call(message)
       #   end
       #
-      def command(command_name, type: nil, action: nil, &block)
-        matcher = CommandMatcher.new(command_name, type: type)
+      def command(command_name, types: nil, action: nil, &block)
+        matcher = CommandMatcher.new(command_name, types: types)
         route(matcher, action: action, &block)
       end
 
       # Routes message to action or proc.
       # @param text [String,Regexp]
-      # @param type [String,Symbol,nil] chat type, any if nil passed, default nil.
-      def message(text, type: nil, action: nil, &block)
-        matcher = MessageMatcher.new(text, type: type)
+      # @param types [Array<String>,nil] chat type, any if nil passed, default nil.
+      def message(text, types: nil, action: nil, &block)
+        matcher = MessageMatcher.new(text, types: types)
         route(matcher, action: action, &block)
       end
 
-      def callback_query(data, type: nil, action: nil, &block)
-        matcher = CallbackQueryMatcher.new(data, type: type)
+      def callback_query(data, types: nil, action: nil, &block)
+        matcher = CallbackQueryMatcher.new(data, types: types)
         route(matcher, action: action, &block)
       end
 
-      def chat_event(event_name, type: nil, action: nil, &block)
-        matcher = ChatEventMatcher.new(event_name, type: type)
+      def chat_event(event_name, types: nil, action: nil, &block)
+        types = type.nil? || type.is_a?(Array) ? type : [type]
+        matcher = ChatEventMatcher.new(event_name, types: types)
         route(matcher, action: action, &block)
       end
 
