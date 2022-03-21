@@ -64,7 +64,7 @@ module TelegramApp
     end
 
     def populate_chat
-      return message.chat if message.is_a?(Telegram::Bot::Types::Message)
+      return message.chat if message.respond_to?(:chat)
       return message.message.chat if message.is_a?(Telegram::Bot::Types::CallbackQuery)
 
       nil
