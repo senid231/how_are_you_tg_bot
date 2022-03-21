@@ -26,7 +26,7 @@ module TelegramApp
 
       def match?(message, bot_info)
         return false unless message.is_a?(Telegram::Bot::Types::Message)
-        return false if !@types.nil? && @types.include?(message.chat.type)
+        return false if !@types.nil? && !@types.include?(message.chat.type)
 
         if ['group', 'supergroup'].include?(message.chat.type) && message.text.split(' ').first == "/#{@command}@#{bot_info.username}"
           return true
@@ -48,7 +48,7 @@ module TelegramApp
 
       def match?(message, bot_info)
         return false unless message.is_a?(Telegram::Bot::Types::Message)
-        return false if !@types.nil? && @types.include?(message.chat.type)
+        return false if !@types.nil? && !@types.include?(message.chat.type)
 
         if @text.is_a?(Regexp)
           @text.match?(message.text)
@@ -67,7 +67,7 @@ module TelegramApp
 
       def match?(message, bot_info)
         return false unless message.is_a?(Telegram::Bot::Types::ChatMemberUpdated)
-        return false if !@types.nil? && @types.include?(message.chat.type)
+        return false if !@types.nil? && !@types.include?(message.chat.type)
 
         ChatEventDetector.call(message: message, event_name: @event_name, bot_info: bot_info)
       end
@@ -82,7 +82,7 @@ module TelegramApp
 
       def match?(message, bot_info)
         return false unless message.is_a?(Telegram::Bot::Types::CallbackQuery)
-        return false if !@types.nil? && @types.include?(message.message.chat.type)
+        return false if !@types.nil? && !@types.include?(message.message.chat.type)
 
         if @data.is_a?(Regexp)
           @data.match?(message.data)
