@@ -1,0 +1,26 @@
+[Unit]
+Description=Start/stop telegram bot HowAreYouUABot
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+LimitNOFILE=65536
+LimitCORE=infinity
+User=root
+
+Environment=RBENV_ROOT=/home/how_are_you_ua_bot/.rbenv
+Environment=RBENV_VERSION=2.7.5
+Environment=PATH=/home/how_are_you_ua_bot/.rbenv/shims:/usr/bin:/opt/how_are_you_ua_bot/vendor/bundle/bin:/bin
+Environment=BUNDLE_GEMFILE=/opt/how_are_you_ua_bot/Gemfile
+Environment=GEM_HOME=/opt/how_are_you_ua_bot/vendor/bundle
+Environment=GEM_PATH=/opt/how_are_you_ua_bot/vendor/bundle
+Environment=APP_TOKEN=YOUR-TELEGRAM-BOT-TOKEN`
+RuntimeDirectory=how_are_you_ua_bot
+WorkingDirectory=/opt/how_are_you_ua_bot
+
+ExecStart=/home/how_are_you_ua_bot/.rbenv/bin/rbenv exec bundle exec /opt/how_are_you_ua_bot/bin/bot
+
+Type=simple
+TimeoutSec=10
+Restart=on-abnormal

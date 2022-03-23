@@ -70,19 +70,19 @@ module TelegramApp
 
     def initialize
       @bot = nil
+      @bot_mutex = Mutex.new
       @bot_info = nil
       @setup_finished = false
       @running = false
       @interrupted = false
       @around_receive = nil
-      @bot_api_mutex = Mutex.new
+      @bot_api = nil
     end
 
     def setup
       return if @setup_finished
 
       self.class._configure.call(self)
-      connect_bot
       @setup_finished = true
     end
 
@@ -90,9 +90,10 @@ module TelegramApp
     def run
       raise ArgumentError, "#{self.class.name} already running" if @running
 
-      setup
+      setup # perform setup if not performed yet.
       logger.info('Starting bot')
       catch_interruption { @interrupted = true }
+      bot # connect bot if not connected yet.
       @running = true
       scheduler&.start
       run_once until @interrupted
@@ -121,6 +122,24 @@ module TelegramApp
       @around_receive = block
     end
 
+    def bot
+      return @bot unless @bot.nil?
+
+      connect_bot
+    end
+
+    def bot_api
+      return @bot_api unless @bot_api.nil?
+
+      connect_bot
+    end
+
+    def bot_info
+      return @bot_info unless @bot_info.nil?
+
+      connect_bot
+    end
+
     private
 
     def within_message_context(message)
@@ -130,30 +149,23 @@ module TelegramApp
     end
 
     def connect_bot
-      opts = { logger: logger, timeout: 5 }.merge(bot_client_options || {})
-      @bot = Telegram::Bot::Client.new(config.token, opts)
-      @bot_api = ThreadSafeProxy.new(bot.api)
-      logger&.info { "Connecting to #{bot.api.url} ..." }
-      @bot_info = get_bot_info
-      logger&.info { 'Connected.' }
-      print_bot_info
-    end
+      @bot_mutex.synchronize do
+        return unless @bot.nil?
 
-    def print_bot_info
-      info_line = bot_info.to_h.map { |k, v| "#{k}=#{v.inspect}" }.join(', ')
-      logger&.info { "Bot info: #{info_line}" }
-    end
-
-    def get_bot_info
-      response = bot_api.get_me
-      raise ArgumentError, "Failed to retrieve bot info: #{response}" unless response['ok']
-
-      BotInfo.new response['result']
+        opts = { logger: logger, timeout: 5 }.merge(bot_client_options || {})
+        @bot = Telegram::Bot::Client.new(config.token, opts)
+        @bot_api ||= ThreadSafeProxy.new(@bot.api)
+        logger&.info { "Connecting to #{@bot_api.url} ..." }
+        @bot_info = BotInfo.new @bot_api.get_me['result'] # check connection by calling getMe.
+        logger&.info { 'Connected.' }
+        info_line = @bot_info.to_h.map { |k, v| "#{k}=#{v.inspect}" }.join(', ')
+        logger&.info { "Bot info: #{info_line}" }
+      end
     end
 
     def catch_interruption(&block)
       Signal.trap('INT') do
-        logger&.info { 'INT signal caught. Interrupting...' }
+        puts 'INT signal caught. Interrupting...'
         block.call
       end
     end
